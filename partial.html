@@ -1,0 +1,1223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>∂ Partial Derivative & Multivariable Calculus Suite</title>
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<!-- MathJS, Plotly, KaTeX -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.11.0/math.min.js"></script>
+<script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+
+<style>
+:root{
+  --bg: #07070d;
+  --card: #11111a;
+  --card2: #181826;
+  --border: rgba(138, 108, 255, 0.2);
+  --border-focus: rgba(138, 108, 255, 0.6);
+
+  --primary: #8a6cff;
+  --primary-light: #a78bfa;
+  --secondary: #ff6ca8;
+  --green: #65ffd0;
+  --accent: #38bdf8;
+
+  --text: #f3f1ff;
+  --muted: #9490b8;
+}
+
+*{
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body{
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  overflow-x: hidden;
+  min-height: 100vh;
+  position: relative;
+}
+
+/* Background Cyberpunk Grid */
+body::before{
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(125, 108, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(125, 108, 255, 0.05) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Ambient Radial Glows */
+.glow1{
+  position: fixed;
+  width: 650px;
+  height: 650px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(138, 108, 255, 0.16), transparent 70%);
+  top: -220px;
+  left: -150px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.glow2{
+  position: fixed;
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 108, 168, 0.12), transparent 70%);
+  bottom: -200px;
+  right: -120px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.container{
+  width: min(1200px, 94%);
+  margin: auto;
+  position: relative;
+  z-index: 2;
+  padding-bottom: 80px;
+}
+
+/* HEADER */
+header{
+  padding: 55px 0 25px;
+  text-align: center;
+}
+
+.badge{
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid var(--border);
+  background: rgba(138, 108, 255, 0.1);
+  padding: 8px 20px;
+  border-radius: 999px;
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  color: var(--primary-light);
+  margin-bottom: 22px;
+  box-shadow: 0 0 20px rgba(138, 108, 255, 0.15);
+  letter-spacing: 1px;
+}
+
+.dot{
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 8px var(--green);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse{
+  0%, 100%{ transform: scale(1); opacity: 1; }
+  50%{ transform: scale(0.7); opacity: 0.5; }
+}
+
+h1{
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(38px, 6.5vw, 84px);
+  line-height: 1.05;
+  letter-spacing: -2px;
+  font-weight: 800;
+  margin-bottom: 15px;
+  background: linear-gradient(135deg, #ffffff 30%, #c4b5fd 70%, #ff6ca8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.subtitle{
+  max-width: 720px;
+  margin: 0 auto;
+  color: var(--muted);
+  font-size: 17px;
+  line-height: 1.6;
+}
+
+/* SECTION TITLES */
+.section-title{
+  font-family: 'Space Mono', monospace;
+  color: var(--muted);
+  font-size: 13px;
+  margin: 40px 0 16px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.section-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* EXAMPLES GRID */
+.examples{
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 14px;
+}
+
+.example{
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 16px 20px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.example:hover{
+  transform: translateY(-4px);
+  border-color: var(--primary);
+  background: rgba(138, 108, 255, 0.08);
+  box-shadow: 0 10px 25px rgba(138, 108, 255, 0.15);
+}
+
+.example h3{
+  font-size: 17px;
+  font-family: 'Space Mono', monospace;
+  margin-bottom: 6px;
+  color: #fff;
+}
+
+.example p{
+  color: var(--muted);
+  font-size: 13px;
+}
+
+/* SOLVER CONTAINER */
+.solver{
+  margin-top: 35px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 35px;
+  position: relative;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px);
+}
+
+.solver::before{
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--primary), var(--secondary), var(--green));
+  border-radius: 24px 24px 0 0;
+}
+
+.label{
+  font-family: 'Space Mono', monospace;
+  color: var(--muted);
+  font-size: 12px;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+/* MATH INPUT WITH QUICK KEYS */
+.input-wrapper{
+  position: relative;
+  margin-bottom: 15px;
+}
+
+input[type="text"]{
+  width: 100%;
+  background: var(--card2);
+  border: 1px solid var(--border);
+  color: #fff;
+  padding: 18px 22px;
+  border-radius: 14px;
+  outline: none;
+  font-size: 20px;
+  font-family: 'Space Mono', monospace;
+  transition: all 0.2s ease;
+}
+
+input[type="text"]:focus{
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(138, 108, 255, 0.2);
+}
+
+/* QUICK MATH KEYBOARD */
+.math-keys{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 25px;
+}
+
+.math-key{
+  background: var(--card2);
+  border: 1px solid var(--border);
+  color: var(--primary-light);
+  padding: 6px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+  transition: all 0.15s ease;
+}
+
+.math-key:hover{
+  background: rgba(138, 108, 255, 0.2);
+  border-color: var(--primary);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+/* SELECTORS */
+.control-grid{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 25px;
+  margin-bottom: 25px;
+}
+
+.var-buttons,
+.order-buttons{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.var-btn,
+.order-btn{
+  background: var(--card2);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  padding: 10px 18px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-family: 'Space Mono', monospace;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.var-btn:hover,
+.order-btn:hover{
+  border-color: var(--primary);
+  color: white;
+}
+
+.var-btn.active{
+  background: rgba(138, 108, 255, 0.2);
+  border-color: var(--primary);
+  color: var(--primary-light);
+  font-weight: 700;
+  box-shadow: 0 0 12px rgba(138, 108, 255, 0.3);
+}
+
+.order-btn.active{
+  background: rgba(255, 108, 168, 0.18);
+  border-color: var(--secondary);
+  color: #ff8ebb;
+  font-weight: 700;
+  box-shadow: 0 0 12px rgba(255, 108, 168, 0.3);
+}
+
+/* SOLVE BUTTON */
+.solve-btn{
+  width: 100%;
+  border: none;
+  padding: 18px;
+  border-radius: 14px;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  color: white;
+  background: linear-gradient(135deg, var(--primary), #a87dff);
+  transition: all 0.25s ease;
+  box-shadow: 0 8px 25px rgba(138, 108, 255, 0.35);
+  font-family: 'Syne', sans-serif;
+  letter-spacing: 0.5px;
+}
+
+.solve-btn:hover{
+  transform: translateY(-2px);
+  box-shadow: 0 12px 35px rgba(138, 108, 255, 0.5);
+}
+
+/* ERROR NOTIFICATION */
+.error{
+  display: none;
+  margin-top: 20px;
+  background: rgba(255, 80, 80, 0.1);
+  border: 1px solid rgba(255, 80, 80, 0.3);
+  padding: 14px 18px;
+  border-radius: 12px;
+  color: #ff9f9f;
+  font-family: 'Space Mono', monospace;
+  font-size: 14px;
+}
+
+.error.show{
+  display: block;
+  animation: fade .3s ease;
+}
+
+/* RESULTS & TABS */
+.result-section{
+  display: none;
+  margin-top: 40px;
+  animation: fade 0.4s ease;
+}
+
+.result-section.show{
+  display: block;
+}
+
+@keyframes fade{
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.tab-nav{
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 12px;
+  overflow-x: auto;
+}
+
+.tab-btn{
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  padding: 10px 20px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.tab-btn:hover{
+  color: #fff;
+  border-color: var(--primary);
+}
+
+.tab-btn.active{
+  background: rgba(138, 108, 255, 0.18);
+  border-color: var(--primary);
+  color: var(--primary-light);
+  font-weight: 700;
+}
+
+.tab-pane{
+  display: none;
+}
+
+.tab-pane.active{
+  display: block;
+}
+
+/* RESULT CARD */
+.result-card{
+  background: var(--card);
+  border: 1px solid rgba(101, 255, 208, 0.25);
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+}
+
+.result-top{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.result-title{
+  font-family: 'Space Mono', monospace;
+  color: var(--green);
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+}
+
+.btn-group{
+  display: flex;
+  gap: 10px;
+}
+
+.action-btn{
+  background: rgba(101, 255, 208, 0.1);
+  border: 1px solid rgba(101, 255, 208, 0.25);
+  color: var(--green);
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  transition: all 0.2s ease;
+}
+
+.action-btn:hover{
+  background: rgba(101, 255, 208, 0.25);
+  transform: translateY(-2px);
+}
+
+.answer-box{
+  background: var(--card2);
+  border: 1px solid rgba(101, 255, 208, 0.15);
+  border-radius: 14px;
+  padding: 24px;
+  font-size: 24px;
+  font-family: 'Space Mono', monospace;
+  line-height: 1.6;
+  margin-bottom: 15px;
+  word-break: break-word;
+  color: #fff;
+}
+
+.answer-label{
+  color: var(--muted);
+  font-family: 'Space Mono', monospace;
+  font-size: 14px;
+  margin-bottom: 25px;
+}
+
+.answer-label span{
+  color: var(--primary-light);
+  font-weight: 700;
+}
+
+/* STEPS */
+.steps{
+  border-top: 1px solid var(--border);
+  padding-top: 25px;
+  margin-top: 25px;
+}
+
+.step-title{
+  font-family: 'Space Mono', monospace;
+  color: var(--muted);
+  font-size: 13px;
+  text-transform: uppercase;
+  margin-bottom: 18px;
+  letter-spacing: 1px;
+}
+
+.step{
+  display: flex;
+  gap: 16px;
+  margin-bottom: 14px;
+  background: rgba(24, 24, 38, 0.5);
+  padding: 14px 18px;
+  border-radius: 12px;
+  border: 1px solid rgba(138, 108, 255, 0.12);
+}
+
+.step-number{
+  min-width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(138, 108, 255, 0.15);
+  border: 1px solid rgba(138, 108, 255, 0.3);
+  color: var(--primary-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-family: 'Space Mono', monospace;
+  font-weight: 700;
+}
+
+.step-text{
+  color: #d1ccf0;
+  line-height: 1.7;
+  font-family: 'Space Mono', monospace;
+  font-size: 14px;
+}
+
+/* 3D PLOT CONTAINER */
+#plot3dContainer{
+  width: 100%;
+  height: 540px;
+  background: var(--card2);
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  margin-top: 15px;
+}
+
+/* VECTOR ANALYSIS GRID */
+.vector-grid{
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 18px;
+  margin-top: 15px;
+}
+
+.vector-box{
+  background: var(--card2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+}
+
+.vector-box h4{
+  font-family: 'Space Mono', monospace;
+  color: var(--accent);
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.vector-box p{
+  font-family: 'Space Mono', monospace;
+  font-size: 15px;
+  color: #fff;
+  line-height: 1.6;
+}
+
+/* RULES */
+.rules{
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.rule{
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px;
+}
+
+.rule h4{
+  color: var(--secondary);
+  margin-bottom: 10px;
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+  text-transform: uppercase;
+}
+
+.rule p{
+  line-height: 1.8;
+  font-family: 'Space Mono', monospace;
+  font-size: 14px;
+  color: #cfcbef;
+}
+
+/* TOAST */
+.toast{
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--card2);
+  border: 1px solid var(--green);
+  padding: 12px 24px;
+  border-radius: 999px;
+  color: var(--green);
+  font-family: 'Space Mono', monospace;
+  font-size: 14px;
+  opacity: 0;
+  transition: all 0.3s ease;
+  pointer-events: none;
+  z-index: 100;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+}
+
+.toast.show{
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* STREAMLIT PROMO BANNER */
+.streamlit-banner {
+  margin-top: 40px;
+  background: linear-gradient(135deg, rgba(255, 75, 75, 0.12), rgba(138, 108, 255, 0.15));
+  border: 1px solid rgba(255, 75, 75, 0.3);
+  border-radius: 18px;
+  padding: 22px 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.streamlit-banner-text h3 {
+  font-family: 'Syne', sans-serif;
+  font-size: 20px;
+  color: #fff;
+  margin-bottom: 4px;
+}
+
+.streamlit-banner-text p {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.streamlit-badge {
+  background: #FF4B4B;
+  color: #fff;
+  font-weight: 700;
+  padding: 8px 18px;
+  border-radius: 10px;
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+  text-decoration: none;
+  display: inline-block;
+  box-shadow: 0 4px 15px rgba(255, 75, 75, 0.4);
+  transition: transform 0.2s ease;
+}
+
+.streamlit-badge:hover {
+  transform: scale(1.04);
+}
+
+/* FOOTER */
+footer{
+  margin-top: 60px;
+  padding: 30px 0;
+  text-align: center;
+  color: var(--muted);
+  border-top: 1px solid var(--border);
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+}
+
+@media(max-width: 768px){
+  .control-grid{
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+  .solver{
+    padding: 20px;
+  }
+  input[type="text"]{
+    font-size: 16px;
+  }
+  .answer-box{
+    font-size: 18px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="glow1"></div>
+<div class="glow2"></div>
+
+<div class="container">
+
+<header>
+  <div class="badge">
+    <div class="dot"></div>
+    ENGINEERING CALCULUS & 3D ANALYSIS SUITE
+  </div>
+
+  <h1>∂ Partial Derivative Solver</h1>
+
+  <p class="subtitle">
+    Compute exact symbolic partial derivatives of any order, inspect step-by-step calculus derivations,
+    explore gradient vectors, and interact with live 3D response surfaces.
+  </p>
+</header>
+
+<!-- QUICK EXAMPLES -->
+<div class="section-title">⚡ Quick Presets & Engineering Models</div>
+
+<div class="examples">
+  <div class="example" onclick="loadExample('x^2 + y^2 + z^2', 'x', 1)">
+    <h3>x² + y² + z²</h3>
+    <p>Sum of squares paraboloid</p>
+  </div>
+
+  <div class="example" onclick="loadExample('sin(x) * cos(y)', 'x', 1)">
+    <h3>sin(x)·cos(y)</h3>
+    <p>Trigonometric wave grid</p>
+  </div>
+
+  <div class="example" onclick="loadExample('x^2*y + e^(x*y)', 'y', 1)">
+    <h3>x²y + e^(xy)</h3>
+    <p>Exponential-polynomial mix</p>
+  </div>
+
+  <div class="example" onclick="loadExample('x^2 - y^2', 'x', 1)">
+    <h3>x² − y²</h3>
+    <p>Hyperbolic saddle surface</p>
+  </div>
+
+  <div class="example" onclick="loadExample('e^(-(x^2 + y^2))', 'x', 1)">
+    <h3>e^-(x²+y²)</h3>
+    <p>Gaussian bell curve</p>
+  </div>
+
+  <div class="example" onclick="loadExample('(1-x)^2 + 100*(y-x^2)^2', 'x', 1)">
+    <h3>Rosenbrock Valley</h3>
+    <p>Non-convex test function</p>
+  </div>
+</div>
+
+<!-- SOLVER INPUT CARD -->
+<div class="solver">
+  <div class="label">— Mathematical Function f(x, y, z, ...)</div>
+  
+  <div class="input-wrapper">
+    <input
+      type="text"
+      id="functionInput"
+      placeholder="e.g. x^2*y + sin(x*z)"
+      autocomplete="off"
+    />
+  </div>
+
+  <!-- Quick Math Insert Toolbar -->
+  <div class="math-keys">
+    <button class="math-key" onclick="insertMath('^2')">x²</button>
+    <button class="math-key" onclick="insertMath('^3')">x³</button>
+    <button class="math-key" onclick="insertMath('sqrt(')">√</button>
+    <button class="math-key" onclick="insertMath('e^(')">eˣ</button>
+    <button class="math-key" onclick="insertMath('ln(')">ln</button>
+    <button class="math-key" onclick="insertMath('sin(')">sin</button>
+    <button class="math-key" onclick="insertMath('cos(')">cos</button>
+    <button class="math-key" onclick="insertMath('tan(')">tan</button>
+    <button class="math-key" onclick="insertMath('pi')">π</button>
+    <button class="math-key" onclick="insertMath('theta')">θ</button>
+  </div>
+
+  <div class="control-grid">
+    <div>
+      <div class="label">— Differentiate with respect to</div>
+      <div class="var-buttons">
+        <button class="var-btn active" data-var="x" onclick="selectVariable(this)">x</button>
+        <button class="var-btn" data-var="y" onclick="selectVariable(this)">y</button>
+        <button class="var-btn" data-var="z" onclick="selectVariable(this)">z</button>
+        <button class="var-btn" data-var="t" onclick="selectVariable(this)">t</button>
+        <button class="var-btn" data-var="r" onclick="selectVariable(this)">r</button>
+        <button class="var-btn" data-var="θ" onclick="selectVariable(this)">θ</button>
+      </div>
+    </div>
+
+    <div>
+      <div class="label">— Derivative Order (n)</div>
+      <div class="order-buttons">
+        <button class="order-btn active" data-order="1" onclick="selectOrder(this)">1st ∂f/∂x</button>
+        <button class="order-btn" data-order="2" onclick="selectOrder(this)">2nd ∂²f/∂x²</button>
+        <button class="order-btn" data-order="3" onclick="selectOrder(this)">3rd ∂³f/∂x³</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="error" id="errorBox"></div>
+
+  <button class="solve-btn" onclick="solveDerivative()">
+    Compute Partial Derivative & 3D Model →
+  </button>
+</div>
+
+<!-- RESULTS SECTION WITH TABS -->
+<div class="result-section" id="resultSection">
+  <div class="tab-nav">
+    <button class="tab-btn active" onclick="switchTab('tab-result')">📐 Symbolic Result & Steps</button>
+    <button class="tab-btn" onclick="switchTab('tab-3d')">🌐 3D Interactive Surface</button>
+    <button class="tab-btn" onclick="switchTab('tab-vector')">⚡ Gradient & Hessian Matrix</button>
+    <button class="tab-btn" onclick="switchTab('tab-reference')">📖 Calculus Reference</button>
+  </div>
+
+  <!-- TAB 1: RESULT & DERIVATION -->
+  <div class="tab-pane active" id="tab-result">
+    <div class="result-card">
+      <div class="result-top">
+        <div class="result-title">— Symbolic Output</div>
+        <div class="btn-group">
+          <button class="action-btn" onclick="copyResult()">📋 Copy Math</button>
+          <button class="action-btn" onclick="copyLatex()">LaTeX</button>
+        </div>
+      </div>
+
+      <div class="answer-box" id="answer"></div>
+      <div class="answer-label" id="answerLabel"></div>
+
+      <div class="steps">
+        <div class="step-title">— Step-by-Step Derivation Breakdown</div>
+        <div id="stepsContainer"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 2: 3D SURFACE -->
+  <div class="tab-pane" id="tab-3d">
+    <div class="result-card">
+      <div class="result-top">
+        <div class="result-title">— Interactive 3D Response Surface</div>
+        <div style="font-size: 12px; color: var(--muted); font-family: 'Space Mono', monospace;">Rotate, Pan & Zoom with mouse</div>
+      </div>
+      <div id="plot3dContainer"></div>
+    </div>
+  </div>
+
+  <!-- TAB 3: VECTOR & HESSIAN -->
+  <div class="tab-pane" id="tab-vector">
+    <div class="result-card">
+      <div class="result-title" style="margin-bottom: 15px;">— Multivariable Vector Operators</div>
+      <div class="vector-grid">
+        <div class="vector-box">
+          <h4>Gradient Vector ∇f</h4>
+          <p id="gradResult">Computing...</p>
+        </div>
+        <div class="vector-box">
+          <h4>Laplacian Operator ∇²f</h4>
+          <p id="laplacianResult">Computing...</p>
+        </div>
+        <div class="vector-box">
+          <h4>Mixed Partials (Clairaut's Check)</h4>
+          <p id="mixedPartialsResult">Computing...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 4: REFERENCE -->
+  <div class="tab-pane" id="tab-reference">
+    <div class="result-card">
+      <div class="result-title" style="margin-bottom: 15px;">— Multivariable Calculus Reference Guide</div>
+      <div class="rules">
+        <div class="rule">
+          <h4>Power Rule</h4>
+          <p>∂/∂x [xⁿ] = n·xⁿ⁻¹</p>
+        </div>
+        <div class="rule">
+          <h4>Product Rule</h4>
+          <p>∂(uv)/∂x = u·∂v/∂x + v·∂u/∂x</p>
+        </div>
+        <div class="rule">
+          <h4>Chain Rule</h4>
+          <p>∂f/∂x = ∂f/∂u · ∂u/∂x</p>
+        </div>
+        <div class="rule">
+          <h4>Exponential</h4>
+          <p>∂/∂x [eˣ] = eˣ<br>∂/∂x [aˣ] = aˣ ln(a)</p>
+        </div>
+        <div class="rule">
+          <h4>Logarithm</h4>
+          <p>∂/∂x [ln(x)] = 1/x</p>
+        </div>
+        <div class="rule">
+          <h4>Trigonometric</h4>
+          <p>∂/∂x [sin x] = cos x<br>∂/∂x [cos x] = −sin x</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STREAMLIT DEPLOYMENT BANNER -->
+<div class="streamlit-banner">
+  <div class="streamlit-banner-text">
+    <h3>🚀 Python Streamlit Application Ready</h3>
+    <p>This project includes a full-featured Streamlit backend (<code>app.py</code>) ready for one-click deployment on Streamlit Cloud.</p>
+  </div>
+  <a href="https://share.streamlit.io" target="_blank" class="streamlit-badge">Deploy on Streamlit ↗</a>
+</div>
+
+<footer>
+  ∂ Partial Derivative & Multivariable Calculus Suite — Powered by Streamlit, SymPy, Plotly & Math.js
+</footer>
+
+</div>
+
+<div class="toast" id="toast">Copied to clipboard</div>
+
+<script>
+let selectedVariable = "x";
+let selectedDerivativeOrder = 1;
+let currentResult = "";
+let currentFunction = "";
+
+function selectVariable(button){
+  document.querySelectorAll(".var-btn").forEach(btn => btn.classList.remove("active"));
+  button.classList.add("active");
+  selectedVariable = button.dataset.var;
+}
+
+function selectOrder(button){
+  document.querySelectorAll(".order-btn").forEach(btn => btn.classList.remove("active"));
+  button.classList.add("active");
+  selectedDerivativeOrder = Number(button.dataset.order);
+}
+
+function insertMath(str){
+  const input = document.getElementById("functionInput");
+  input.value += str;
+  input.focus();
+}
+
+function switchTab(tabId){
+  document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+  document.querySelectorAll(".tab-pane").forEach(p => p.classList.remove("active"));
+  
+  event.target.classList.add("active");
+  document.getElementById(tabId).classList.add("active");
+
+  if(tabId === 'tab-3d') {
+    Plotly.Plots.resize(document.getElementById('plot3dContainer'));
+  }
+}
+
+function loadExample(expression, variable, order){
+  document.getElementById("functionInput").value = expression;
+  selectedVariable = variable;
+  selectedDerivativeOrder = order;
+
+  document.querySelectorAll(".var-btn").forEach(btn => {
+    btn.classList.toggle("active", btn.dataset.var === variable);
+  });
+
+  document.querySelectorAll(".order-btn").forEach(btn => {
+    btn.classList.toggle("active", Number(btn.dataset.order) === order);
+  });
+
+  solveDerivative();
+}
+
+function formatExpression(expression){
+  return expression
+    .replace(/\*\*/g, "^")
+    .replace(/\b1 \* /g, "")
+    .replace(/ \* 1\b/g, "")
+    .replace(/\(-1\) \* /g, "-")
+    .replace(/Math\./g, "");
+}
+
+function showError(message){
+  const errorBox = document.getElementById("errorBox");
+  errorBox.innerText = message;
+  errorBox.classList.add("show");
+}
+
+function clearError(){
+  document.getElementById("errorBox").classList.remove("show");
+}
+
+function buildNotation(variable, order){
+  if(order === 1) return `∂f/∂${variable}`;
+  if(order === 2) return `∂²f/∂${variable}²`;
+  return `∂³f/∂${variable}³`;
+}
+
+function generateSteps(func, variable, order, result){
+  let html = "";
+  const steps = [];
+
+  steps.push(`Target expression: f = ${func}`);
+  steps.push(`Treat all symbols except "${variable}" as invariant constants`);
+
+  if(order === 1){
+    steps.push(`Apply differentiation operators (Power, Product, Chain, Exponential)`);
+    steps.push(`Final simplified derivative: ${buildNotation(variable, 1)} = ${result}`);
+  } else if(order === 2){
+    let firstDerivative = formatExpression(math.derivative(func, variable).toString());
+    steps.push(`1st Derivative: ∂f/∂${variable} = ${firstDerivative}`);
+    steps.push(`Differentiate the result again with respect to "${variable}"`);
+    steps.push(`Final 2nd order derivative: ∂²f/∂${variable}² = ${result}`);
+  } else {
+    steps.push(`Differentiate consecutively ${order} times w.r.t "${variable}"`);
+    steps.push(`Final result: ∂³f/∂${variable}³ = ${result}`);
+  }
+
+  steps.forEach((step, index) => {
+    html += `
+      <div class="step">
+        <div class="step-number">0${index + 1}</div>
+        <div class="step-text">${step}</div>
+      </div>
+    `;
+  });
+
+  return html;
+}
+
+function render3DSurface(exprStr){
+  try {
+    const compiled = math.compile(exprStr.replace(/e\^/g, "exp"));
+    const xVals = [], yVals = [], zVals = [];
+    const step = 0.25;
+    
+    for (let x = -3; x <= 3; x += step) {
+      xVals.push(x);
+    }
+    for (let y = -3; y <= 3; y += step) {
+      yVals.push(y);
+    }
+
+    for (let i = 0; i < yVals.length; i++) {
+      const row = [];
+      for (let j = 0; j < xVals.length; j++) {
+        try {
+          let val = compiled.evaluate({ x: xVals[j], y: yVals[i], z: 1, t: 1, r: 1, theta: 1 });
+          if (typeof val !== 'number' || isNaN(val) || !isFinite(val)) val = 0;
+          row.push(val);
+        } catch(e) {
+          row.push(0);
+        }
+      }
+      zVals.push(row);
+    }
+
+    const data = [{
+      z: zVals,
+      x: xVals,
+      y: yVals,
+      type: 'surface',
+      colorscale: 'Viridis',
+      contours: {
+        z: { show: true, usecolormap: true, project: { z: true } }
+      }
+    }];
+
+    const layout = {
+      title: { text: `3D Plot: f(x, y) = ${exprStr}`, font: { color: '#f3f1ff', family: 'Space Mono' } },
+      paper_bgcolor: 'rgba(24, 24, 38, 0)',
+      plot_bgcolor: 'rgba(24, 24, 38, 0)',
+      scene: {
+        xaxis: { title: 'x', gridcolor: 'rgba(138,108,255,0.2)' },
+        yaxis: { title: 'y', gridcolor: 'rgba(138,108,255,0.2)' },
+        zaxis: { title: 'f', gridcolor: 'rgba(138,108,255,0.2)' }
+      },
+      margin: { l: 0, r: 0, b: 0, t: 30 }
+    };
+
+    Plotly.newPlot('plot3dContainer', data, layout, { responsive: true });
+  } catch(err) {
+    console.log("3D plot rendering skipped for non-2D function", err);
+  }
+}
+
+function solveDerivative(){
+  clearError();
+  const input = document.getElementById("functionInput").value.trim();
+
+  if(!input){
+    showError("Please enter a mathematical expression.");
+    return;
+  }
+
+  try{
+    let expression = input;
+    if(selectedVariable === "θ"){
+      expression = expression.replace(/θ/g, "theta");
+    }
+
+    let parsed = math.parse(expression);
+    let result = parsed;
+    const variable = selectedVariable === "θ" ? "theta" : selectedVariable;
+
+    for(let i = 0; i < selectedDerivativeOrder; i++){
+      result = math.derivative(result.toString(), variable);
+    }
+
+    result = math.simplify(result);
+    let resultText = formatExpression(result.toString());
+
+    if(selectedVariable === "θ"){
+      resultText = resultText.replace(/theta/g, "θ");
+    }
+
+    currentResult = resultText;
+    currentFunction = input;
+
+    document.getElementById("answer").innerText = resultText;
+    document.getElementById("answerLabel").innerHTML =
+      `<span>${buildNotation(selectedVariable, selectedDerivativeOrder)}</span> where f(...) = ${input}`;
+
+    document.getElementById("stepsContainer").innerHTML =
+      generateSteps(input, selectedVariable, selectedDerivativeOrder, resultText);
+
+    // Compute Vector Operators
+    try {
+      let df_dx = formatExpression(math.simplify(math.derivative(input, 'x')).toString());
+      let df_dy = formatExpression(math.simplify(math.derivative(input, 'y')).toString());
+      document.getElementById("gradResult").innerHTML = `[ ∂f/∂x, ∂f/∂y ] = [ <b>${df_dx}</b>, <b>${df_dy}</b> ]`;
+      
+      let d2f_dx2 = formatExpression(math.simplify(math.derivative(df_dx, 'x')).toString());
+      let d2f_dy2 = formatExpression(math.simplify(math.derivative(df_dy, 'y')).toString());
+      document.getElementById("laplacianResult").innerHTML = `∇²f = ∂²f/∂x² + ∂²f/∂y² = <b>${d2f_dx2} + ${d2f_dy2}</b>`;
+
+      let d2f_dxdy = formatExpression(math.simplify(math.derivative(df_dx, 'y')).toString());
+      let d2f_dydx = formatExpression(math.simplify(math.derivative(df_dy, 'x')).toString());
+      document.getElementById("mixedPartialsResult").innerHTML = `∂²f/∂x∂y = <b>${d2f_dxdy}</b><br>∂²f/∂y∂x = <b>${d2f_dydx}</b> (Clairaut's Check: ${d2f_dxdy === d2f_dydx ? '✅ Equal' : '⚠️ Continuous domain only'})`;
+    } catch(e) {
+      document.getElementById("gradResult").innerText = "Evaluated w.r.t primary variable.";
+    }
+
+    document.getElementById("resultSection").classList.add("show");
+    
+    // Render 3D Surface
+    render3DSurface(input);
+
+    document.getElementById("resultSection").scrollIntoView({
+      behavior: "smooth",
+      block: "nearest"
+    });
+
+  } catch(error){
+    showError("Invalid mathematical syntax. Tip: Use * for multiplication and ^ for powers.");
+  }
+}
+
+function copyResult(){
+  if(!currentResult) return;
+  navigator.clipboard.writeText(currentResult);
+  showToast("Math result copied to clipboard!");
+}
+
+function copyLatex(){
+  if(!currentResult) return;
+  let notation = buildNotation(selectedVariable, selectedDerivativeOrder);
+  let latexStr = `\\frac{\\partial f}{\\partial ${selectedVariable}} = ${currentResult}`;
+  navigator.clipboard.writeText(latexStr);
+  showToast("LaTeX equation copied to clipboard!");
+}
+
+function showToast(msg){
+  const toast = document.getElementById("toast");
+  toast.innerText = msg;
+  toast.classList.add("show");
+  setTimeout(() => {
+    toast.classList.remove("show");
+  }, 2200);
+}
+
+document.getElementById("functionInput").addEventListener("keydown", function(e){
+  if(e.key === "Enter"){
+    solveDerivative();
+  }
+});
+</script>
+
+</body>
+</html>
